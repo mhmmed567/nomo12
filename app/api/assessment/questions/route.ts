@@ -7,6 +7,22 @@ const OPENROUTER_URL =
 
 type Difficulty = "سهل" | "متوسط" | "صعب";
 
+type RawQuestion = {
+  id?: unknown;
+  question?: unknown;
+  options?: unknown;
+  correctAnswer?: unknown;
+  difficulty?: unknown;
+  domain?: unknown;
+  explanation?: unknown;
+};
+
+type RawQuestionsResult = {
+  title?: unknown;
+  description?: unknown;
+  questions?: unknown;
+};
+
 type Question = {
   id: number;
   question: string;
@@ -35,7 +51,7 @@ function jsonResponse(
   });
 }
 
-function cleanAndParseJSON(text: string) {
+function cleanAndParseJSON(text: string): unknown {
   let cleaned = text.trim();
 
   cleaned = cleaned
@@ -47,11 +63,8 @@ function cleanAndParseJSON(text: string) {
   try {
     return JSON.parse(cleaned);
   } catch {
-    const firstBrace =
-      cleaned.indexOf("{");
-
-    const lastBrace =
-      cleaned.lastIndexOf("}");
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
 
     if (
       firstBrace !== -1 &&
@@ -66,13 +79,11 @@ function cleanAndParseJSON(text: string) {
       );
     }
 
-    throw new Error(
-      "Invalid JSON from AI"
-    );
+    throw new Error("Invalid JSON from AI");
   }
 }
 
-function isString(value: unknown) {
+function isString(value: unknown): value is string {
   return (
     typeof value === "string" &&
     value.trim().length > 0
@@ -103,14 +114,11 @@ function normalizeDifficulty(
 }
 
 function normalizeQuestion(
-  raw: any,
+  raw: RawQuestion,
   index: number,
   topic: string
 ): Question | null {
-  if (
-    !raw ||
-    typeof raw !== "object"
-  ) {
+  if (!raw || typeof raw !== "object") {
     return null;
   }
 
@@ -125,8 +133,8 @@ function normalizeQuestion(
     return null;
   }
 
-  const options = raw.options.map(
-    (option: unknown) =>
+  const options: string[] = raw.options.map(
+    (option: unknown): string =>
       typeof option === "string"
         ? option.trim()
         : ""
@@ -134,25 +142,26 @@ function normalizeQuestion(
 
   if (
     options.some(
-      (option) => !option
+      (option: string): boolean => !option
     )
   ) {
     return null;
   }
 
-  const uniqueOptions =
-    new Set(
-      options.map((option) =>
+  const uniqueOptions = new Set(
+    options.map(
+      (option: string): string =>
         option.toLowerCase()
-      )
-    );
+    )
+  );
 
   if (uniqueOptions.size !== 4) {
     return null;
   }
 
-  let correctAnswer =
-    Number(raw.correctAnswer);
+  let correctAnswer = Number(
+    raw.correctAnswer
+  );
 
   if (
     !Number.isInteger(correctAnswer) ||
@@ -164,33 +173,32 @@ function normalizeQuestion(
 
   return {
     id: index + 1,
-    question:
-      raw.question.trim(),
+
+    question: raw.question.trim(),
 
     options,
 
     correctAnswer,
 
-    difficulty:
-      normalizeDifficulty(
-        raw.difficulty,
-        index
-      ),
+    difficulty: normalizeDifficulty(
+      raw.difficulty,
+      index
+    ),
 
-    domain:
-      isString(raw.domain)
-        ? raw.domain.trim()
-        : topic,
+    domain: isString(raw.domain)
+      ? raw.domain.trim()
+      : topic,
 
-    explanation:
-      isString(raw.explanation)
-        ? raw.explanation.trim()
-        : "هذه هي الإجابة الصحيحة حسب السؤال.",
+    explanation: isString(
+      raw.explanation
+    )
+      ? raw.explanation.trim()
+      : "هذه هي الإجابة الصحيحة حسب السؤال.",
   };
 }
 
 function normalizeResult(
-  raw: any,
+  raw: RawQuestionsResult,
   topic: string
 ): QuestionsResult | null {
   if (
@@ -201,42 +209,47 @@ function normalizeResult(
     return null;
   }
 
-  const normalized =
-    raw.questions
-      .map(
-        (question: any, index: number) =>
-          normalizeQuestion(
-            question,
-            index,
-            topic
-          )
-      )
-      .filter(
-        (
-          question: Question | null
-        ): question is Question =>
-          question !== null
-      );
+  const normalized: Question[] = raw.questions
+    .map(
+      (
+        question: unknown,
+        index: number
+      ): Question | null => {
+        if (
+          !question ||
+          typeof question !== "object"
+        ) {
+          return null;
+        }
 
-  /*
-   * يجب أن يكون لدينا 10 أسئلة
-   */
+        return normalizeQuestion(
+          question as RawQuestion,
+          index,
+          topic
+        );
+      }
+    )
+    .filter(
+      (
+        question: Question | null
+      ): question is Question =>
+        question !== null
+    );
+
   if (normalized.length !== 10) {
     return null;
   }
 
-  /*
-   * نفرض توزيع الصعوبة المطلوب.
-   *
-   * 1 - 3 = سهل
-   * 4 - 7 = متوسط
-   * 8 - 10 = صعب
-   */
-  const questions =
+  const questions: Question[] =
     normalized.map(
-      (question, index) => ({
+      (
+        question: Question,
+        index: number
+      ): Question => ({
         ...question,
+
         id: index + 1,
+
         difficulty:
           index < 3
             ? "سهل"
@@ -247,15 +260,15 @@ function normalizeResult(
     );
 
   return {
-    title:
-      isString(raw.title)
-        ? raw.title.trim()
-        : "اختبار NOMO الذكي",
+    title: isString(raw.title)
+      ? raw.title.trim()
+      : "اختبار NOMO الذكي",
 
-    description:
-      isString(raw.description)
-        ? raw.description.trim()
-        : "اختبار لتحديد مستواك",
+    description: isString(
+      raw.description
+    )
+      ? raw.description.trim()
+      : "اختبار لتحديد مستواك",
 
     questions,
   };
@@ -278,25 +291,31 @@ export async function POST(
       );
     }
 
-    const body =
+    const body: unknown =
       await request.json();
 
+    const bodyObject =
+      body &&
+      typeof body === "object"
+        ? body as Record<string, unknown>
+        : {};
+
     const topic =
-      typeof body?.topic === "string" &&
-      body.topic.trim()
-        ? body.topic.trim()
+      typeof bodyObject.topic === "string" &&
+      bodyObject.topic.trim()
+        ? bodyObject.topic.trim()
         : "المعرفة العامة";
 
     const level =
-      typeof body?.level === "string" &&
-      body.level.trim()
-        ? body.level.trim()
+      typeof bodyObject.level === "string" &&
+      bodyObject.level.trim()
+        ? bodyObject.level.trim()
         : "مبتدئ";
 
     const goal =
-      typeof body?.goal === "string" &&
-      body.goal.trim()
-        ? body.goal.trim()
+      typeof bodyObject.goal === "string" &&
+      bodyObject.goal.trim()
+        ? bodyObject.goal.trim()
         : "تطوير المعرفة";
 
     if (
@@ -400,51 +419,50 @@ correctAnswer هو رقم يبدأ من 0:
 يجب أن يحتوي questions على 10 عناصر بالضبط.
 `;
 
-    const response =
-      await fetch(
-        OPENROUTER_URL,
-        {
-          method: "POST",
+    const response = await fetch(
+      OPENROUTER_URL,
+      {
+        method: "POST",
 
-          headers: {
-            Authorization:
-              `Bearer ${apiKey}`,
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
 
-            "Content-Type":
-              "application/json",
+          "Content-Type":
+            "application/json",
 
-            "HTTP-Referer":
-              process.env.NEXT_PUBLIC_APP_URL ||
-              "http://localhost:3000",
+          "HTTP-Referer":
+            process.env.NEXT_PUBLIC_APP_URL ||
+            "http://localhost:3000",
 
-            "X-Title": "NOMO",
+          "X-Title": "NOMO",
+        },
+
+        body: JSON.stringify({
+          model:
+            process.env.OPENROUTER_MODEL ||
+            "openai/gpt-4o-mini",
+
+          temperature: 0.2,
+
+          response_format: {
+            type: "json_object",
           },
 
-          body: JSON.stringify({
-            model:
-              process.env.OPENROUTER_MODEL ||
-              "openai/gpt-4o-mini",
-
-            temperature: 0.2,
-
-            response_format: {
-              type: "json_object",
+          messages: [
+            {
+              role: "system",
+              content:
+                "أنت خبير في تصميم الاختبارات التعليمية التكيفية. أرجع JSON صالح فقط.",
             },
 
-            messages: [
-              {
-                role: "system",
-                content:
-                  "أنت خبير في تصميم الاختبارات التعليمية التكيفية. أرجع JSON صالح فقط.",
-              },
-              {
-                role: "user",
-                content: prompt,
-              },
-            ],
-          }),
-        }
-      );
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+        }),
+      }
+    );
 
     const responseText =
       await response.text();
@@ -465,7 +483,7 @@ correctAnswer هو رقم يبدأ من 0:
       );
     }
 
-    let apiData: any;
+    let apiData: unknown;
 
     try {
       apiData =
@@ -485,12 +503,57 @@ correctAnswer هو رقم يبدأ من 0:
       );
     }
 
-    const content =
-      apiData?.choices?.[0]
-        ?.message?.content;
+    const apiObject =
+      apiData &&
+      typeof apiData === "object"
+        ? apiData as Record<string, unknown>
+        : null;
+
+    const choices =
+      apiObject?.choices;
+
+    let content: string | null = null;
+
+    if (Array.isArray(choices)) {
+      const firstChoice =
+        choices[0];
+
+      if (
+        firstChoice &&
+        typeof firstChoice === "object"
+      ) {
+        const choice =
+          firstChoice as Record<
+            string,
+            unknown
+          >;
+
+        const message =
+          choice.message;
+
+        if (
+          message &&
+          typeof message === "object"
+        ) {
+          const messageObject =
+            message as Record<
+              string,
+              unknown
+            >;
+
+          if (
+            typeof messageObject.content ===
+            "string"
+          ) {
+            content =
+              messageObject.content;
+          }
+        }
+      }
+    }
 
     if (
-      typeof content !== "string" ||
+      !content ||
       !content.trim()
     ) {
       console.error(
@@ -507,7 +570,7 @@ correctAnswer هو رقم يبدأ من 0:
       );
     }
 
-    let parsed: any;
+    let parsed: unknown;
 
     try {
       parsed =
@@ -534,7 +597,7 @@ correctAnswer هو رقم يبدأ من 0:
 
     const result =
       normalizeResult(
-        parsed,
+        parsed as RawQuestionsResult,
         topic
       );
 
