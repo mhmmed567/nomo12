@@ -1,13 +1,68 @@
-
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+
+const OPENROUTER_URL =
+  "https://openrouter.ai/api/v1/chat/completions";
 
 type PlanRequest = {
   result?: unknown;
 };
 
-function jsonResponse(data: unknown, status = 200) {
+type KnowledgeItem = {
+  title: string;
+  content: string;
+  important: boolean;
+};
+
+type Question = {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+};
+
+type Challenge = {
+  title: string;
+  description: string;
+  task: string;
+  hint: string;
+  successCriteria: string;
+};
+
+type Exercise = {
+  title: string;
+  description: string;
+  task: string;
+};
+
+type LearningDay = {
+  day: number;
+  title: string;
+  domain: string;
+  difficulty: string;
+  duration: number;
+  objective: string;
+  knowledge: KnowledgeItem[];
+  challenge: Challenge;
+  questions: Question[];
+  exercise: Exercise;
+  xp: number;
+};
+
+type LearningPlan = {
+  title: string;
+  description: string;
+  level: string;
+  totalDays: number;
+  dailyGoal: string;
+  days: LearningDay[];
+};
+
+function jsonResponse(
+  data: unknown,
+  status = 200
+) {
   return NextResponse.json(data, {
     status,
     headers: {
@@ -16,84 +71,482 @@ function jsonResponse(data: unknown, status = 200) {
   });
 }
 
-/**
- * يحاول استخراج JSON حتى لو أعاد النموذج:
- *
- * ```json
- * {...}
- * ```
- *
- * أو أعاد نصًا يحتوي على JSON.
- */
-function cleanAndParseJSON(text: string) {
+function cleanAndParseJSON(
+  text: string
+) {
   let cleaned = text.trim();
 
-  // إزالة Markdown code fence
   cleaned = cleaned
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
 
-  // محاولة مباشرة
   try {
     return JSON.parse(cleaned);
   } catch {
-    // نكمل بمحاولة استخراج أول JSON object
-  }
+    const firstBrace =
+      cleaned.indexOf("{");
 
-  const firstBrace = cleaned.indexOf("{");
-  const lastBrace = cleaned.lastIndexOf("}");
+    const lastBrace =
+      cleaned.lastIndexOf("}");
 
-  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    const possibleJSON = cleaned.slice(
-      firstBrace,
-      lastBrace + 1
-    );
-
-    try {
-      return JSON.parse(possibleJSON);
-    } catch {
-      // فشل
+    if (
+      firstBrace !== -1 &&
+      lastBrace !== -1 &&
+      lastBrace > firstBrace
+    ) {
+      return JSON.parse(
+        cleaned.slice(
+          firstBrace,
+          lastBrace + 1
+        )
+      );
     }
-  }
 
-  throw new Error(
-    "الذكاء الاصطناعي لم يرجع JSON صالح."
+    throw new Error(
+      "Invalid JSON from AI"
+    );
+  }
+}
+
+function isString(value: unknown) {
+  return (
+    typeof value === "string" &&
+    value.trim().length > 0
   );
 }
 
-function validatePlan(plan: any) {
-  if (!plan || typeof plan !== "object") {
-    return false;
-  }
-
-  if (!Array.isArray(plan.days)) {
-    return false;
-  }
-
-  if (plan.days.length !== 7) {
-    return false;
-  }
-
-  return true;
+function safeString(
+  value: unknown,
+  fallback: string
+) {
+  return isString(value)
+    ? String(value).trim()
+    : fallback;
 }
 
-export async function POST(request: Request) {
+function safeInteger(
+  value: unknown,
+  fallback: number
+) {
+  const number = Number(value);
+
+  return Number.isInteger(number)
+    ? number
+    : fallback;
+}
+
+function normalizeDifficulty(
+  value: unknown,
+  index: number
+) {
+  if (
+    value === "سهل" ||
+    value === "متوسط" ||
+    value === "صعب"
+  ) {
+    return value;
+  }
+
+  if (index < 2) {
+    return "سهل";
+  }
+
+  if (index < 5) {
+    return "متوسط";
+  }
+
+  return "صعب";
+}
+
+function normalizeKnowledge(
+  raw: any
+): KnowledgeItem | null {
+  if (
+    !raw ||
+    typeof raw !== "object"
+  ) {
+    return null;
+  }
+
+  if (
+    !isString(raw.title) ||
+    !isString(raw.content)
+  ) {
+    return null;
+  }
+
+  return {
+    title:
+      raw.title.trim(),
+
+    content:
+      raw.content.trim(),
+
+    important:
+      typeof raw.important === "boolean"
+        ? raw.important
+        : false,
+  };
+}
+
+function normalizeQuestion(
+  raw: any
+): Question | null {
+  if (
+    !raw ||
+    typeof raw !== "object"
+  ) {
+    return null;
+  }
+
+  if (!isString(raw.question)) {
+    return null;
+  }
+
+  if (
+    !Array.isArray(raw.options) ||
+    raw.options.length !== 4
+  ) {
+    return null;
+  }
+
+  const options =
+    raw.options.map(
+      (option: unknown) =>
+        typeof option === "string"
+          ? option.trim()
+          : ""
+    );
+
+  if (
+    options.some(
+      (option: string) => !option
+    )
+  ) {
+    return null;
+  }
+
+  const correctAnswer =
+    safeInteger(
+      raw.correctAnswer,
+      0
+    );
+
+  if (
+    correctAnswer < 0 ||
+    correctAnswer > 3
+  ) {
+    return null;
+  }
+
+  return {
+    question:
+      raw.question.trim(),
+
+    options,
+
+    correctAnswer,
+
+    explanation:
+      safeString(
+        raw.explanation,
+        "هذه هي الإجابة الصحيحة بناءً على السؤال."
+      ),
+  };
+}
+
+function normalizeChallenge(
+  raw: any
+): Challenge | null {
+  if (
+    !raw ||
+    typeof raw !== "object"
+  ) {
+    return null;
+  }
+
+  return {
+    title:
+      safeString(
+        raw.title,
+        "التحدي العملي"
+      ),
+
+    description:
+      safeString(
+        raw.description,
+        "طبّق ما تعلمته في مهمة عملية."
+      ),
+
+    task:
+      safeString(
+        raw.task,
+        "نفّذ المهمة باستخدام المهارة التي تعلمتها اليوم."
+      ),
+
+    hint:
+      safeString(
+        raw.hint,
+        "ابدأ بتقسيم المهمة إلى خطوات صغيرة."
+      ),
+
+    successCriteria:
+      safeString(
+        raw.successCriteria,
+        "إكمال المهمة وتحقيق الهدف المطلوب."
+      ),
+  };
+}
+
+function normalizeExercise(
+  raw: any
+): Exercise {
+  if (
+    !raw ||
+    typeof raw !== "object"
+  ) {
+    return {
+      title: "تمرين اليوم",
+      description:
+        "طبّق ما تعلمته اليوم.",
+      task:
+        "أنجز تمرينًا عمليًا مرتبطًا بموضوع اليوم.",
+    };
+  }
+
+  return {
+    title:
+      safeString(
+        raw.title,
+        "تمرين اليوم"
+      ),
+
+    description:
+      safeString(
+        raw.description,
+        "طبّق ما تعلمته اليوم."
+      ),
+
+    task:
+      safeString(
+        raw.task,
+        "أنجز تمرينًا عمليًا مرتبطًا بموضوع اليوم."
+      ),
+  };
+}
+
+function normalizeDay(
+  raw: any,
+  index: number
+): LearningDay | null {
+  if (
+    !raw ||
+    typeof raw !== "object"
+  ) {
+    return null;
+  }
+
+  const rawKnowledge =
+    Array.isArray(raw.knowledge)
+      ? raw.knowledge
+      : [];
+
+  const knowledge =
+    rawKnowledge
+      .map(normalizeKnowledge)
+      .filter(
+        (
+          item: KnowledgeItem | null
+        ): item is KnowledgeItem =>
+          item !== null
+      );
+
+  if (knowledge.length === 0) {
+    return null;
+  }
+
+  const rawQuestions =
+    Array.isArray(raw.questions)
+      ? raw.questions
+      : [];
+
+  const questions =
+    rawQuestions
+      .map(normalizeQuestion)
+      .filter(
+        (
+          item: Question | null
+        ): item is Question =>
+          item !== null
+      );
+
+  if (questions.length === 0) {
+    return null;
+  }
+
+  const challenge =
+    normalizeChallenge(
+      raw.challenge
+    );
+
+  if (!challenge) {
+    return null;
+  }
+
+  return {
+    day: index + 1,
+
+    title:
+      safeString(
+        raw.title,
+        `اليوم ${index + 1}`
+      ),
+
+    domain:
+      safeString(
+        raw.domain,
+        "تطوير المهارات"
+      ),
+
+    difficulty:
+      normalizeDifficulty(
+        raw.difficulty,
+        index
+      ),
+
+    duration: Math.max(
+      15,
+      Math.min(
+        180,
+        safeInteger(
+          raw.duration,
+          30
+        )
+      )
+    ),
+
+    objective:
+      safeString(
+        raw.objective,
+        "فهم المهارة وتطبيقها عمليًا."
+      ),
+
+    knowledge:
+      knowledge.slice(0, 4),
+
+    challenge,
+
+    questions:
+      questions.slice(0, 5),
+
+    exercise:
+      normalizeExercise(
+        raw.exercise
+      ),
+
+    xp: Math.max(
+      50,
+      Math.min(
+        250,
+        safeInteger(
+          raw.xp,
+          index === 0
+            ? 75
+            : index === 6
+              ? 200
+              : 125
+        )
+      )
+    ),
+  };
+}
+
+function normalizePlan(
+  raw: any
+): LearningPlan | null {
+  if (
+    !raw ||
+    typeof raw !== "object" ||
+    !Array.isArray(raw.days)
+  ) {
+    return null;
+  }
+
+  /*
+   * نحتاج 7 أيام على الأقل.
+   */
+  if (raw.days.length < 7) {
+    return null;
+  }
+
+  const days: LearningDay[] = [];
+
+  for (let i = 0; i < 7; i++) {
+    const day =
+      normalizeDay(
+        raw.days[i],
+        i
+      );
+
+    if (!day) {
+      return null;
+    }
+
+    days.push(day);
+  }
+
+  return {
+    title:
+      safeString(
+        raw.title,
+        "خطة تطوير NOMO"
+      ),
+
+    description:
+      safeString(
+        raw.description,
+        "خطة تعلم شخصية مصممة بناءً على نتيجة تقييمك."
+      ),
+
+    level:
+      safeString(
+        raw.level,
+        "مبتدئ"
+      ),
+
+    totalDays: 7,
+
+    dailyGoal:
+      safeString(
+        raw.dailyGoal,
+        "التعلم والتطبيق يوميًا."
+      ),
+
+    days,
+  };
+}
+
+export async function POST(
+  request: Request
+) {
   try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey =
+      process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
       return jsonResponse(
         {
           error:
-            "OPENROUTER_API_KEY غير موجود. أضفه داخل ملف .env.local ثم أعد تشغيل السيرفر.",
+            "إعدادات الذكاء الاصطناعي غير مكتملة.",
         },
         500
       );
     }
 
-    const body = (await request.json()) as PlanRequest;
+    const body =
+      (await request.json()) as PlanRequest;
 
     if (!body.result) {
       return jsonResponse(
@@ -105,133 +558,66 @@ export async function POST(request: Request) {
       );
     }
 
+    const resultString =
+      JSON.stringify(body.result);
+
+    if (
+      resultString.length > 50000
+    ) {
+      return jsonResponse(
+        {
+          error:
+            "بيانات التقييم كبيرة جدًا.",
+        },
+        413
+      );
+    }
+
     const prompt = `
 أنت محرك التعلم التكيفي في منصة NOMO.
 
-مهمتك إنشاء خطة تطوير شخصية للمستخدم بناءً على نتيجة التقييم الموجودة في الأسفل.
+مهمتك إنشاء خطة تعلم شخصية لمدة 7 أيام.
 
-نتيجة التقييم:
+نتيجة تقييم المستخدم:
 
-${JSON.stringify(body.result, null, 2)}
-
-━━━━━━━━━━━━━━━━━━━━
-هدف الخطة
-━━━━━━━━━━━━━━━━━━━━
-
-أنشئ خطة تطوير حقيقية وليست مجرد قائمة دروس.
-
-الخطة يجب أن تساعد المستخدم على:
-
-1. معرفة المعلومات التي تنقصه.
-2. فهم نقاط ضعفه.
-3. تطبيق ما تعلمه.
-4. حل أسئلة متنوعة.
-5. تنفيذ تحديات عملية.
-6. قياس تقدمه.
-7. الانتقال من مستوى إلى مستوى أعلى.
+${resultString}
 
 ━━━━━━━━━━━━━━━━━━━━
-نظام الخطة
+الهدف
 ━━━━━━━━━━━━━━━━━━━━
 
-الخطة مدتها 7 أيام.
+أنشئ خطة شخصية تعتمد على:
 
-كل يوم يجب أن يحتوي على:
+- نقاط الضعف.
+- نقاط القوة.
+- المجالات.
+- مستوى المستخدم.
+- نتيجة الاختبار.
 
-- معلومات مهمة يجب أن يعرفها المستخدم.
-- تحدي عملي.
-- أسئلة.
-- تمرين تطبيقي.
-- معيار نجاح.
+لا تجعل الخطة عامة.
+
+━━━━━━━━━━━━━━━━━━━━
+كل يوم
+━━━━━━━━━━━━━━━━━━━━
+
+يجب أن يحتوي على:
+
+- 2 إلى 4 معلومات.
+- تحدي عملي واحد.
+- 3 إلى 5 أسئلة.
+- تمرين عملي واحد.
 - XP.
-- مستوى صعوبة.
 - هدف واضح.
-
-يجب أن تكون الخطة شخصية بناءً على نتيجة التقييم.
-
-إذا كان المستخدم ضعيفًا في مجال معين:
-- أعطه معلومات أكثر.
-- اجعل التحديات في هذا المجال.
-- ارفع عدد التدريبات المتعلقة به.
-
-إذا كان المستخدم قويًا:
-- لا تكرر المعلومات الأساسية.
-- أعطه تحديات أصعب.
-- استخدم مسائل عملية.
+- مدة.
+- مستوى صعوبة.
 
 ━━━━━━━━━━━━━━━━━━━━
-المعلومات
+اليوم السابع
 ━━━━━━━━━━━━━━━━━━━━
 
-كل يوم يحتوي على 2 إلى 4 معلومات.
+اليوم السابع هو التحدي النهائي.
 
-المعلومات يجب أن تكون:
-
-- واضحة.
-- عملية.
-- مرتبطة بمستوى المستخدم.
-- ليست عامة جدًا.
-- تساعد المستخدم على حل تحدي اليوم.
-
-━━━━━━━━━━━━━━━━━━━━
-التحدي
-━━━━━━━━━━━━━━━━━━━━
-
-كل يوم تحدي عملي واحد.
-
-التحدي يجب أن يحتوي على:
-
-- عنوان.
-- وصف.
-- مهمة واضحة.
-- تلميح.
-- معيار نجاح.
-
-لا تكتب تحديات عامة مثل:
-
-"اقرأ عن الموضوع."
-
-بدلًا من ذلك استخدم شيئًا يمكن للمستخدم تنفيذه وقياسه.
-
-━━━━━━━━━━━━━━━━━━━━
-الأسئلة
-━━━━━━━━━━━━━━━━━━━━
-
-كل يوم يحتوي على 3 إلى 5 أسئلة.
-
-كل سؤال يحتوي على:
-
-- السؤال.
-- 4 خيارات.
-- رقم الإجابة الصحيحة.
-- شرح الإجابة.
-
-لا تجعل جميع الأسئلة سهلة.
-
-وزع الصعوبة.
-
-━━━━━━━━━━━━━━━━━━━━
-التمرين
-━━━━━━━━━━━━━━━━━━━━
-
-كل يوم تمرين عملي واحد.
-
-يجب أن يكون مرتبطًا بموضوع اليوم.
-
-━━━━━━━━━━━━━━━━━━━━
-XP
-━━━━━━━━━━━━━━━━━━━━
-
-اليوم الأول:
-50 - 100 XP
-
-الأيام المتوسطة:
-100 - 150 XP
-
-اليوم السابع:
-150 - 250 XP
-
-كلما زادت الصعوبة زادت XP.
+يجب أن يجمع أهم المهارات التي تعلمها المستخدم خلال الأيام السابقة.
 
 ━━━━━━━━━━━━━━━━━━━━
 صيغة JSON
@@ -239,18 +625,12 @@ XP
 
 أرجع JSON فقط.
 
-ممنوع:
-
-- Markdown
-- json
--  
-- أي نص خارج JSON
-- أي شرح خارج JSON
-
-استخدم الشكل التالي بالضبط:
+لا Markdown.
+لا code fence.
+لا شرح خارج JSON.
 
 {
-  "title": "",
+  "title": "خطة تطوير شخصية",
   "description": "",
   "level": "",
   "totalDays": 7,
@@ -268,6 +648,11 @@ XP
           "title": "",
           "content": "",
           "important": true
+        },
+        {
+          "title": "",
+          "content": "",
+          "important": false
         }
       ],
       "challenge": {
@@ -301,171 +686,176 @@ XP
 }
 
 ━━━━━━━━━━━━━━━━━━━━
-قواعد إلزامية
+قواعد مهمة جدًا
 ━━━━━━━━━━━━━━━━━━━━
 
-- يجب أن تكون days = 7 بالضبط.
-- day من 1 إلى 7.
-- كل يوم يحتوي على 2 إلى 4 knowledge.
-- كل يوم يحتوي على 3 إلى 5 questions.
-- كل سؤال يحتوي على 4 options.
+- أنشئ 7 أيام كاملة.
+- لا تضع أقل من معلومتين في أي يوم.
+- لا تضع أكثر من 4 معلومات.
+- لا تضع أقل من 3 أسئلة في أي يوم.
+- لا تضع أكثر من 5 أسئلة.
+- كل سؤال يحتوي على 4 خيارات.
 - correctAnswer رقم من 0 إلى 3.
-- كل يوم يحتوي على challenge واحد.
-- كل يوم يحتوي على exercise واحد.
-- duration بالدقائق.
+- challenge موجود في كل يوم.
+- exercise موجود في كل يوم.
+- duration رقم.
 - xp رقم.
-- اللغة العربية.
-- لا تكرر نفس السؤال.
-- لا تكرر نفس التحدي.
-- لا تجعل الخطة عامة.
-- اربط الخطة بنقاط ضعف المستخدم.
-- اجعل اليوم السابع تحديًا نهائيًا يجمع ما تعلمه المستخدم.
-- JSON صالح فقط.
+- جميع المحتوى باللغة العربية.
+- لا تكرر الأسئلة.
+- لا تكرر التحديات.
+- اليوم السابع تحدي نهائي.
+- اربط الخطة بنتيجة المستخدم.
+- أرجع JSON صالح فقط.
 `;
 
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer":
-            process.env.NEXT_PUBLIC_APP_URL ||
-            "http://localhost:3000",
-          "X-Title": "NOMO",
-        },
-        body: JSON.stringify({
-          model:
-            process.env.OPENROUTER_MODEL ||
-            "openai/gpt-4o-mini",
+    const response =
+      await fetch(
+        OPENROUTER_URL,
+        {
+          method: "POST",
 
-          messages: [
-            {
-              role: "system",
-              content:
-                "أنت خبير في تصميم خطط التعلم التكيفية. أرجع JSON صالح فقط بدون Markdown.",
-            },
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
+          headers: {
+            "Content-Type":
+              "application/json",
 
-          temperature: 0.45,
+            Authorization:
+              `Bearer ${apiKey}`,
 
-          response_format: {
-            type: "json_object",
+            "HTTP-Referer":
+              process.env.NEXT_PUBLIC_APP_URL ||
+              "http://localhost:3000",
+
+            "X-Title": "NOMO",
           },
-        }),
-      }
-    );
 
-    const responseText = await response.text();
+          body: JSON.stringify({
+            model:
+              process.env.OPENROUTER_MODEL ||
+              "openai/gpt-4o-mini",
+
+            temperature: 0.25,
+
+            response_format: {
+              type: "json_object",
+            },
+
+            messages: [
+              {
+                role: "system",
+                content:
+                  "أنت خبير في تصميم خطط التعلم التكيفية. أرجع JSON صالح فقط.",
+              },
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+          }),
+        }
+      );
+
+    const responseText =
+      await response.text();
 
     if (!response.ok) {
       console.error(
-        "OpenRouter error:",
+        "OPENROUTER PLAN ERROR:",
         response.status,
         responseText
       );
 
-      let errorMessage =
-        "حدث خطأ من OpenRouter.";
-
-      try {
-        const errorData = JSON.parse(responseText);
-
-        errorMessage =
-          errorData?.error?.message ||
-          errorData?.error ||
-          errorMessage;
-      } catch {
-        // الرد ليس JSON
-      }
-
       return jsonResponse(
         {
-          error: errorMessage,
+          error:
+            "تعذر إنشاء خطة التعلم حاليًا.",
         },
-        response.status
+        502
       );
     }
 
     let openRouterData: any;
 
     try {
-      openRouterData = JSON.parse(responseText);
+      openRouterData =
+        JSON.parse(responseText);
     } catch {
       console.error(
-        "OpenRouter returned non JSON:",
+        "INVALID OPENROUTER RESPONSE:",
         responseText
       );
 
       return jsonResponse(
         {
           error:
-            "OpenRouter أرجع استجابة غير صالحة.",
+            "استجابة الذكاء الاصطناعي غير صالحة.",
         },
         502
       );
     }
 
     const aiContent =
-      openRouterData?.choices?.[0]?.message?.content;
+      openRouterData
+        ?.choices?.[0]
+        ?.message?.content;
 
-    if (!aiContent) {
+    if (
+      typeof aiContent !== "string" ||
+      !aiContent.trim()
+    ) {
       console.error(
-        "No AI content:",
+        "NO PLAN CONTENT:",
         openRouterData
       );
 
       return jsonResponse(
         {
           error:
-            "لم يرجع الذكاء الاصطناعي محتوى للخطة.",
+            "لم يرجع الذكاء الاصطناعي خطة.",
         },
         502
       );
     }
 
-    console.log(
-      "OpenRouter AI response received."
-    );
-
-    let plan: any;
+    let parsed: any;
 
     try {
-      plan = cleanAndParseJSON(aiContent);
+      parsed =
+        cleanAndParseJSON(
+          aiContent
+        );
     } catch (error) {
       console.error(
-        "Invalid AI JSON:",
+        "INVALID PLAN JSON:",
+        error
+      );
+
+      console.error(
+        "AI CONTENT:",
         aiContent
       );
 
       return jsonResponse(
         {
           error:
-            "الذكاء الاصطناعي أرجع بيانات غير صالحة. حاول مرة أخرى.",
-          raw:
-            process.env.NODE_ENV === "development"
-              ? aiContent
-              : undefined,
+            "الذكاء الاصطناعي أرجع خطة غير صالحة.",
         },
         502
       );
     }
 
-    if (!validatePlan(plan)) {
+    const plan =
+      normalizePlan(parsed);
+
+    if (!plan) {
       console.error(
-        "Invalid plan structure:",
-        plan
+        "INVALID PLAN STRUCTURE:",
+        parsed
       );
 
       return jsonResponse(
         {
           error:
-            "تم إنشاء الخطة لكن هيكلها غير صحيح. حاول مرة أخرى.",
+            "تعذر تجهيز خطة التعلم بالشكل المطلوب. حاول مرة أخرى.",
         },
         502
       );
@@ -474,19 +864,16 @@ XP
     return jsonResponse(plan);
   } catch (error) {
     console.error(
-      "PLAN API ERROR:",
+      "NOMO PLAN API ERROR:",
       error
     );
 
     return jsonResponse(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "حدث خطأ غير متوقع أثناء إنشاء الخطة.",
+          "حدث خطأ غير متوقع أثناء إنشاء الخطة.",
       },
       500
     );
   }
 }
-
