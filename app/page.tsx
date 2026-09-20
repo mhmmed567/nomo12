@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@heroui/react";
+import { Button, Card } from "@heroui/react";
 
 const features = [
   {
@@ -58,7 +58,7 @@ export default function HomePage() {
           <Link href="/assessment">
             <Button
               variant="primary"
-              className="h-10 rounded-lg bg-[#123c31] px-5 font-bold text-white shadow-lg shadow-[#123c31]/10"
+              className="h-10 md:h-10 rounded-xl bg-[#123c31] px-5 font-bold text-white shadow-lg shadow-[#123c31]/10"
             >
               ابدأ الآن
             </Button>
@@ -70,7 +70,7 @@ export default function HomePage() {
             HERO
         ===================================================== */}
 
-        <section className="nomo-gradient nomo-grid nomo-glow relative mt-8 overflow-hidden rounded-[2rem] px-6 py-16 text-white sm:px-10 md:rounded-[3rem] md:px-16 md:py-24">
+        <section className="nomo-gradient nomo-grid nomo-glow relative mt-8 overflow-hidden rounded-4xl px-6 py-16 text-white sm:px-10 md:rounded-4xl md:px-16 md:py-24">
 
           {/* Decorative blobs */}
 
@@ -114,7 +114,7 @@ export default function HomePage() {
                   <Button
                     variant="primary"
                     size="lg"
-                    className="h-12 w-full rounded-lg bg-[#b9e5c5] px-7 font-black text-[#123c31] shadow-xl shadow-black/10 sm:w-auto"
+                    className="h-12 md:h-12 w-full rounded-xl bg-[#b9e5c5] px-7 font-black text-[#123c31] shadow-xl shadow-black/10 sm:w-auto"
                   >
                     اكتشف مستواك
                     <span>←</span>
@@ -125,7 +125,7 @@ export default function HomePage() {
                   <Button
                     variant="secondary"
                     size="lg"
-                    className="h-12 w-full rounded-lg border border-white/15 bg-white/[0.05] px-7 font-bold text-white backdrop-blur-md sm:w-auto"
+                    className="h-12 md:h-12 w-full rounded-xl border border-white/15 bg-white/[0.05] px-7 font-bold text-white backdrop-blur-md sm:w-auto"
                   >
                     كيف يعمل NOMO؟
                   </Button>
@@ -162,7 +162,7 @@ export default function HomePage() {
 
             <div className="relative hidden lg:block">
 
-              <div className="relative mx-auto aspect-square max-w-[390px] rounded-[2.5rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur-xl">
+              <div className="relative mx-auto aspect-square max-w-[390px] rounded-4xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur-xl">
 
                 {/* LEVEL CARD */}
 
@@ -194,7 +194,7 @@ export default function HomePage() {
 
                 {/* DASHBOARD */}
 
-                <div className="flex h-full flex-col justify-between rounded-[2rem] bg-white/[0.045] p-6">
+                <div className="flex h-full flex-col justify-between rounded-4xl bg-white/[0.045] p-6">
 
                   <div>
 
@@ -292,7 +292,7 @@ export default function HomePage() {
             CTA
         ===================================================== */}
 
-        <section className="nomo-card relative overflow-hidden p-8 md:p-12">
+        <Card render={(props) => <section {...props} />} className="nomo-card relative overflow-hidden p-8 md:p-12">
 
           <div className="absolute -left-20 -top-20 h-48 w-48 rounded-full bg-[#b9e5c5]/30 blur-3xl" />
 
@@ -319,7 +319,7 @@ export default function HomePage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="h-12 rounded-lg bg-[#123c31] px-8 font-black text-white shadow-xl shadow-[#123c31]/15"
+                className="h-12 md:h-12 rounded-xl bg-[#123c31] px-8 font-black text-white shadow-xl shadow-[#123c31]/15"
               >
                 ابدأ الاختبار
                 <span>←</span>
@@ -327,7 +327,7 @@ export default function HomePage() {
             </Link>
 
           </div>
-        </section>
+        </Card>
 
         {/* =====================================================
             FOOTER
@@ -431,7 +431,7 @@ function Feature({
   text: string;
 }) {
   return (
-    <div className="nomo-card nomo-card-hover group relative overflow-hidden p-7">
+    <Card className="nomo-card nomo-card-hover group relative overflow-hidden p-7">
 
       <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-[#b9e5c5]/20 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
 
@@ -458,7 +458,7 @@ function Feature({
         </p>
 
       </div>
-    </div>
+    </Card>
   );
 }
 

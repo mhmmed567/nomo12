@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@heroui/react";
+import { Button, Card } from "@heroui/react";
 
 type Domain = {
 title: string;
@@ -239,7 +239,7 @@ return ( <main
       <Link href="/assessment">
         <Button
           variant="primary"
-          className="h-10 rounded-lg bg-[#123c31] px-5 text-xs font-black text-white"
+          className="h-10 md:h-10 rounded-xl bg-[#123c31] px-5 text-xs font-black text-white"
         >
           إعادة التقييم
         </Button>
@@ -249,7 +249,7 @@ return ( <main
 
   <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
     {/* HERO */}
-    <section className="nomo-gradient nomo-grid nomo-glow relative overflow-hidden rounded-[32px] p-6 sm:rounded-[40px] sm:p-9 lg:p-12">
+    <section className="nomo-gradient nomo-grid nomo-glow relative overflow-hidden rounded-4xl p-6 sm:rounded-4xl sm:p-9 lg:p-12">
       <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#b9e5c5]/10 blur-3xl" />
 
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[#73b987]/10 blur-3xl" />
@@ -344,7 +344,7 @@ return ( <main
     </section>
 
     {/* CREATE PLAN */}
-    <section className="nomo-card mt-6 overflow-hidden">
+    <Card render={(props) => <section {...props} />} className="nomo-card mt-6 overflow-hidden">
       <div className="p-6 sm:p-8 lg:p-10">
         <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
@@ -368,7 +368,7 @@ return ( <main
             size="lg"
             onPress={createPlan}
             isPending={creatingPlan}
-            className="h-14 shrink-0 rounded-xl bg-[#123c31] px-8 text-sm font-black text-white shadow-xl shadow-[#123c31]/10"
+            className="h-14 md:h-14 shrink-0 rounded-xl bg-[#123c31] px-8 text-sm font-black text-white shadow-xl shadow-[#123c31]/10"
           >
             {creatingPlan
               ? "جاري بناء الخطة..."
@@ -405,7 +405,7 @@ return ( <main
           </div>
         )}
       </div>
-    </section>
+    </Card>
 
     {/* STRENGTHS / WEAKNESSES */}
     <section className="mt-6 grid gap-5 lg:grid-cols-2">
@@ -424,7 +424,7 @@ return ( <main
 
     {/* FOCUS */}
     {result.focusAreas?.length > 0 && (
-      <section className="nomo-card mt-6 p-6 sm:p-8">
+      <Card render={(props) => <section {...props} />} className="nomo-card mt-6 p-6 sm:p-8">
         <SectionHeader
           eyebrow="FOCUS AREAS"
           title="أين يجب أن تركز؟"
@@ -458,12 +458,12 @@ return ( <main
             )
           )}
         </div>
-      </section>
+      </Card>
     )}
 
     {/* DOMAINS */}
     {result.domains?.length > 0 && (
-      <section className="nomo-card mt-6 p-6 sm:p-8">
+      <Card render={(props) => <section {...props} />} className="nomo-card mt-6 p-6 sm:p-8">
         <SectionHeader
           eyebrow="SKILL ANALYSIS"
           title="تحليل المجالات"
@@ -480,11 +480,11 @@ return ( <main
             )
           )}
         </div>
-      </section>
+      </Card>
     )}
 
     {/* AI INSIGHT */}
-    <section className="nomo-gradient nomo-glow relative mt-6 overflow-hidden rounded-[32px] p-7 sm:rounded-[38px] sm:p-9">
+    <section className="nomo-gradient nomo-glow relative mt-6 overflow-hidden rounded-4xl p-7 sm:rounded-4xl sm:p-9">
       <div className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-[#b9e5c5]/10 blur-3xl" />
 
       <div className="relative">
@@ -523,7 +523,7 @@ return ( <main
     </section>
 
     {/* FINAL CTA */}
-    <section className="mt-6 overflow-hidden rounded-[32px] border border-[#dcebe0] bg-[#eff8f1] p-7 text-center sm:rounded-[38px] sm:p-10">
+    <section className="mt-6 overflow-hidden rounded-4xl border border-[#dcebe0] bg-[#eff8f1] p-7 text-center sm:rounded-4xl sm:p-10">
       <div className="mx-auto max-w-2xl">
         <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#123c31] text-xl font-black text-[#b9e5c5]">
           →
@@ -543,7 +543,7 @@ return ( <main
           size="lg"
           onPress={createPlan}
           isPending={creatingPlan}
-          className="mt-6 h-14 rounded-xl bg-[#123c31] px-8 text-sm font-black text-white"
+          className="mt-6 h-14 md:h-14 rounded-xl bg-[#123c31] px-8 text-sm font-black text-white"
         >
           ابدأ رحلة التطوير
         </Button>
@@ -601,7 +601,7 @@ icon: string;
 value: string;
 label: string;
 }) {
-return ( <div className="nomo-card-hover rounded-[25px] border border-[#e1e8e4] bg-white p-5 sm:p-6"> <div className="flex items-center justify-between"> <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#eff8f1] text-sm font-black text-[#4d8d60]">
+return ( <div className="nomo-card-hover rounded-3xl border border-[#e1e8e4] bg-white p-5 sm:p-6"> <div className="flex items-center justify-between"> <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#eff8f1] text-sm font-black text-[#4d8d60]">
 {icon} </div>
 
 
@@ -638,7 +638,7 @@ items: string[];
 }) {
 const isStrength = type === "strength";
 
-return ( <div className="nomo-card p-6 sm:p-7"> <div className="flex items-center gap-3">
+return ( <Card className="nomo-card p-6 sm:p-7"> <div className="flex items-center gap-3">
 <div
 className={`grid h-12 w-12 place-items-center rounded-2xl text-lg font-black ${
             isStrength
@@ -672,7 +672,7 @@ className={`grid h-12 w-12 place-items-center rounded-2xl text-lg font-black ${
           className="flex gap-3 rounded-2xl bg-[#fbfcfa] p-4"
         >
           <span
-            className={`mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-lg text-[9px] font-black ${
+            className={`mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-xl text-[9px] font-black ${
               isStrength
                 ? "bg-[#dff4e6] text-[#4d8d60]"
                 : "bg-[#f9ecd3] text-[#987b35]"
@@ -688,7 +688,7 @@ className={`grid h-12 w-12 place-items-center rounded-2xl text-lg font-black ${
       ))
     )}
   </div>
-</div>
+</Card>
 
 
 );
@@ -711,7 +711,7 @@ Math.round(Number(domain.score) || 0)
 )
 );
 
-return ( <div className="rounded-[28px] border border-[#e1e8e4] bg-[#fbfcfa] p-5 sm:p-6"> <div className="flex items-start justify-between gap-4"> <div> <div className="text-[9px] font-black text-[#9aa9a3]">
+return ( <div className="rounded-3xl border border-[#e1e8e4] bg-[#fbfcfa] p-5 sm:p-6"> <div className="flex items-start justify-between gap-4"> <div> <div className="text-[9px] font-black text-[#9aa9a3]">
 DOMAIN </div>
 
 
@@ -826,7 +826,7 @@ function DashboardLoading() {
 return ( <main
    dir="rtl"
    className="flex min-h-screen items-center justify-center bg-[#f6f7f5] px-6"
- > <div className="w-full max-w-md text-center"> <div className="nomo-card p-10"> <div className="relative mx-auto h-20 w-20"> <div className="absolute inset-0 animate-ping rounded-3xl bg-[#b9e5c5]/40" />
+ > <div className="w-full max-w-md text-center"> <Card className="nomo-card p-10"> <div className="relative mx-auto h-20 w-20"> <div className="absolute inset-0 animate-ping rounded-3xl bg-[#b9e5c5]/40" />
 
         <div className="relative grid h-20 w-20 place-items-center rounded-3xl bg-[#123c31] text-2xl font-black text-[#b9e5c5] shadow-xl">
           N
@@ -844,7 +844,7 @@ return ( <main
       <div className="mx-auto mt-6 h-1.5 w-32 overflow-hidden rounded-full bg-[#e3ebe6]">
         <div className="h-full w-1/2 animate-pulse rounded-full bg-[#73b987]" />
       </div>
-    </div>
+    </Card>
   </div>
 </main>
 
@@ -868,7 +868,7 @@ return ( <main
 
 ```
   <div className="relative w-full max-w-md">
-    <div className="nomo-card p-8 text-center sm:p-10">
+    <Card className="nomo-card p-8 text-center sm:p-10">
       <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-[#eff8f1] text-2xl font-black text-[#123c31]">
         N
       </div>
@@ -889,12 +889,12 @@ return ( <main
         <Button
           variant="primary"
           size="lg"
-          className="h-14 w-full rounded-xl bg-[#123c31] font-black text-white"
+          className="h-14 md:h-14 w-full rounded-xl bg-[#123c31] font-black text-white"
         >
           ابدأ التقييم
         </Button>
       </Link>
-    </div>
+    </Card>
   </div>
 </main>
 
