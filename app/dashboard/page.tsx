@@ -239,7 +239,7 @@ return ( <main
       <Link href="/assessment">
         <Button
           variant="primary"
-          className="h-10 rounded-lg bg-[#123c31] px-5 text-xs font-black text-white"
+          className="h-10 rounded-xl bg-[#123c31] px-5 text-xs font-black text-white"
         >
           إعادة التقييم
         </Button>
@@ -672,7 +672,7 @@ className={`grid h-12 w-12 place-items-center rounded-2xl text-lg font-black ${
           className="flex gap-3 rounded-2xl bg-[#fbfcfa] p-4"
         >
           <span
-            className={`mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-lg text-[9px] font-black ${
+            className={`mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-xl text-[9px] font-black ${
               isStrength
                 ? "bg-[#dff4e6] text-[#4d8d60]"
                 : "bg-[#f9ecd3] text-[#987b35]"

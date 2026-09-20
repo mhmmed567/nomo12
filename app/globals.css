@@ -1,4 +1,15 @@
 @import "tailwindcss";
+@import "@heroui/styles";
+
+/* Shared rounded scale for Tailwind utilities and HeroUI components. */
+@theme {
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 1.75rem;
+  --radius-3xl: 2rem;
+}
 
 :root {
   --background: #f6f7f5;
@@ -20,10 +31,18 @@
   --danger: #dc4c4c;
   --warning: #d99b32;
 
-  --radius-sm: 0.75rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.5rem;
-  --radius-xl: 2rem;
+  --radius: 0.75rem;
+  --field-radius: 1.25rem;
+  --nomo-card-radius: 2rem;
+  --accent: var(--primary);
+  --accent-hover: var(--primary-hover);
+  --accent-foreground: #ffffff;
+  --accent-soft: var(--primary-soft);
+  --accent-soft-foreground: var(--primary);
+  --focus: #4d9b6a;
+  --default: var(--surface-soft);
+  --default-hover: #e5eee7;
+  --default-foreground: var(--foreground);
 }
 
 * {
@@ -94,7 +113,7 @@ a {
 
 .nomo-card {
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--nomo-card-radius);
   background: rgba(255, 255, 255, 0.8);
 
   box-shadow:
@@ -188,6 +207,7 @@ a {
 ======================================== */
 
 .nomo-glass {
+  border-radius: var(--radius-2xl);
   border: 1px solid rgba(255, 255, 255, 0.55);
 
   background: rgba(255, 255, 255, 0.65);
@@ -331,7 +351,7 @@ a {
   }
 
   .nomo-card {
-    border-radius: 1.25rem;
+    border-radius: 1.5rem;
   }
 }
 

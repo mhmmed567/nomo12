@@ -318,7 +318,7 @@ export default function PlanPage() {
             <Link href="/dashboard">
               <Button
                 variant="tertiary"
-                className="h-10 rounded-lg bg-white px-4 text-xs font-black text-[#123c31]"
+                className="h-10 rounded-xl bg-white px-4 text-xs font-black text-[#123c31]"
               >
                 لوحة التحكم
               </Button>
@@ -455,11 +455,11 @@ export default function PlanPage() {
               const active = index === dayIndex;
 
               return (
-                <button
+                <Button variant="ghost"
                   key={item.day}
                   type="button"
-                  onClick={() => goToDay(index)}
-                  className={`min-w-[105px] rounded-2xl border p-3 text-right transition-all ${
+                  onPress={() => goToDay(index)}
+                  className={`block h-auto whitespace-normal justify-start min-w-[105px] rounded-2xl border p-3 text-right transition-all ${
                     active
                       ? "border-[#123c31] bg-[#123c31] text-white shadow-lg shadow-[#123c31]/10"
                       : "border-[#e1e8e4] bg-white text-[#10231d] hover:-translate-y-0.5 hover:shadow-md"
@@ -495,7 +495,7 @@ export default function PlanPage() {
                     {item.title}
                   </div>
 
-                </button>
+                </Button>
               );
             })}
 
@@ -861,7 +861,7 @@ export default function PlanPage() {
                     currentDayCompleted ||
                     !allQuestionsAnswered
                   }
-                  className="h-14 shrink-0 rounded-lg bg-[#123c31] px-7 text-sm font-black text-white disabled:opacity-40"
+                  className="h-14 shrink-0 rounded-xl bg-[#123c31] px-7 text-sm font-black text-white disabled:opacity-40"
                 >
                   {currentDayCompleted
                     ? "✓ اليوم مكتمل"
@@ -882,7 +882,7 @@ export default function PlanPage() {
                 onPress={() =>
                   goToDay(dayIndex - 1)
                 }
-                className="h-14 rounded-lg bg-white font-black text-[#40544b]"
+                className="h-14 rounded-xl bg-white font-black text-[#40544b]"
               >
                 → اليوم السابق
               </Button>
@@ -897,7 +897,7 @@ export default function PlanPage() {
                 onPress={() =>
                   goToDay(dayIndex + 1)
                 }
-                className="h-14 rounded-lg bg-[#123c31] font-black text-white"
+                className="h-14 rounded-xl bg-[#123c31] font-black text-white"
               >
                 اليوم التالي ←
               </Button>
@@ -965,13 +965,13 @@ export default function PlanPage() {
                         index === dayIndex;
 
                       return (
-                        <button
+                        <Button variant="ghost"
                           key={item.day}
                           type="button"
-                          onClick={() =>
+                          onPress={() =>
                             goToDay(index)
                           }
-                          className={`w-full rounded-2xl p-3 text-right transition ${
+                          className={`block h-auto whitespace-normal justify-start w-full rounded-2xl p-3 text-right transition ${
                             active
                               ? "bg-[#123c31] text-white"
                               : "hover:bg-[#f5f8f5]"
@@ -1020,7 +1020,7 @@ export default function PlanPage() {
 
                           </div>
 
-                        </button>
+                        </Button>
                       );
                     }
                   )}
@@ -1109,15 +1109,15 @@ function QuizQuestion({
                 question.correctAnswer;
 
             return (
-              <button
+              <Button variant="ghost"
                 key={optionIndex}
                 type="button"
-                onClick={() =>
+                onPress={() =>
                   !checked &&
                   onSelect(optionIndex)
                 }
-                disabled={checked}
-                className={`flex items-center gap-3 rounded-2xl border p-4 text-right transition ${
+                isDisabled={checked}
+                className={`h-auto w-full whitespace-normal justify-start flex items-center gap-3 rounded-2xl border p-4 text-right transition ${
                   isCorrectOption
                     ? "border-[#9bd2aa] bg-[#eff8f1]"
                     : isWrongSelected
@@ -1129,7 +1129,7 @@ function QuizQuestion({
               >
 
                 <span
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[10px] font-black ${
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl text-[10px] font-black ${
                     isCorrectOption
                       ? "bg-[#123c31] text-[#b9e5c5]"
                       : isWrongSelected
@@ -1160,7 +1160,7 @@ function QuizQuestion({
                   </span>
                 )}
 
-              </button>
+              </Button>
             );
           }
         )}
@@ -1172,7 +1172,7 @@ function QuizQuestion({
           variant="primary"
           onPress={onCheck}
           isDisabled={selected < 0}
-          className="mt-4 h-11 w-full rounded-lg bg-[#123c31] text-xs font-black text-white disabled:opacity-40"
+          className="mt-4 h-11 w-full rounded-xl bg-[#123c31] text-xs font-black text-white disabled:opacity-40"
         >
           تحقق من الإجابة
         </Button>
@@ -1337,7 +1337,7 @@ function EmptyPlan() {
             <Button
               variant="primary"
               size="lg"
-              className="h-14 w-full rounded-lg bg-[#123c31] font-black text-white"
+              className="h-14 w-full rounded-xl bg-[#123c31] font-black text-white"
             >
               العودة إلى لوحة التحكم
             </Button>
