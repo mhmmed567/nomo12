@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@heroui/react";
+import { Button, Card } from "@heroui/react";
 
 type Question = {
 id: number;
@@ -269,7 +269,7 @@ return ( <main
     </section>
 
     {/* Main Card */}
-    <section className="nomo-card overflow-hidden">
+    <Card render={(props) => <section {...props} />} className="nomo-card overflow-hidden">
       <div className="h-1.5 bg-gradient-to-l from-[#123c31] via-[#73b987] to-[#b9e5c5]" />
 
       <div className="p-5 sm:p-8 lg:p-10">
@@ -310,13 +310,13 @@ return ( <main
                 answers[current] === index;
 
               return (
-                <button
+                <Button variant="tertiary"
                   key={`${question.id}-${index}`}
                   type="button"
-                  onClick={() =>
+                  onPress={() =>
                     selectAnswer(index)
                   }
-                  className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border p-4 text-right transition-all duration-200 sm:p-5 ${
+                  className={`h-auto md:h-auto min-w-0 whitespace-normal group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border p-4 text-right transition-all duration-200 sm:p-5 ${
                     selected
                       ? "border-[#73b987] bg-[#eff8f1] shadow-[0_10px_30px_rgba(115,185,135,0.12)]"
                       : "border-[#e1e8e4] bg-white hover:-translate-y-0.5 hover:border-[#cbd8d1] hover:bg-[#fbfdfb] hover:shadow-lg"
@@ -358,7 +358,7 @@ return ( <main
                       <span className="h-2 w-2 rounded-full bg-[#b9e5c5]" />
                     )}
                   </span>
-                </button>
+                </Button>
               );
             }
           )}
@@ -375,7 +375,7 @@ return ( <main
               )
             }
             isDisabled={current === 0}
-            className="h-14 rounded-xl border border-[#e1e8e4] bg-[#f7f9f7] px-7 font-black text-[#40544b]"
+            className="h-14 md:h-14 rounded-xl border border-[#e1e8e4] bg-[#f7f9f7] px-7 font-black text-[#40544b]"
           >
             السابق
           </Button>
@@ -398,7 +398,7 @@ return ( <main
               }
             }}
             isDisabled={!canContinue}
-            className="h-14 flex-1 rounded-xl bg-[#123c31] px-7 font-black text-white shadow-lg shadow-[#123c31]/10"
+            className="h-14 md:h-14 flex-1 rounded-xl bg-[#123c31] px-7 font-black text-white shadow-lg shadow-[#123c31]/10"
           >
             {isLastQuestion
               ? "تحليل مستواي"
@@ -410,10 +410,10 @@ return ( <main
           </Button>
         </div>
       </div>
-    </section>
+    </Card>
 
     {/* Question navigator */}
-    <section className="nomo-card mt-5 p-4 sm:p-5">
+    <Card render={(props) => <section {...props} />} className="nomo-card mt-5 p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-black">
@@ -439,13 +439,13 @@ return ( <main
             current === index;
 
           return (
-            <button
+            <Button variant="tertiary"
               key={index}
               type="button"
-              onClick={() =>
+              onPress={() =>
                 setCurrent(index)
               }
-              className={`grid h-9 w-9 place-items-center rounded-xl text-xs font-black transition ${
+              className={`min-w-0 whitespace-normal grid h-9 md:h-9 w-9 place-items-center rounded-xl text-xs font-black transition ${
                 active
                   ? "bg-[#123c31] text-white shadow-md"
                   : answered
@@ -454,11 +454,11 @@ return ( <main
               }`}
             >
               {index + 1}
-            </button>
+            </Button>
           );
         })}
       </div>
-    </section>
+    </Card>
 
     {/* Footer note */}
     <div className="px-2 py-6 text-center">
@@ -530,8 +530,8 @@ return ( <main
   <div className="pointer-events-none absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-[#dff4e6]/40 blur-3xl" />
 
   <div className="relative w-full max-w-md text-center">
-    <div className="nomo-card p-8 sm:p-10">
-      <div className="mx-auto grid h-20 w-20 place-items-center rounded-[24px] bg-[#123c31] text-3xl font-black text-[#b9e5c5] shadow-xl shadow-[#123c31]/15">
+    <Card className="nomo-card p-8 sm:p-10">
+      <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-[#123c31] text-3xl font-black text-[#b9e5c5] shadow-xl shadow-[#123c31]/15">
         <span className="animate-pulse">
           N
         </span>
@@ -551,7 +551,7 @@ return ( <main
           على فهم مستواك بشكل أفضل.
         </p>
       </div>
-    </div>
+    </Card>
   </div>
 </main>
 
@@ -567,7 +567,7 @@ return ( <main
 
 ```
   <div className="relative w-full max-w-lg text-center">
-    <div className="nomo-card p-8 sm:p-12">
+    <Card className="nomo-card p-8 sm:p-12">
       <div className="relative mx-auto h-24 w-24">
         <div className="absolute inset-0 animate-spin rounded-full border-4 border-[#e1e8e4] border-t-[#123c31]" />
 
@@ -590,7 +590,7 @@ return ( <main
         <span className="h-2 w-2 animate-bounce rounded-full bg-[#73b987] [animation-delay:150ms]" />
         <span className="h-2 w-2 animate-bounce rounded-full bg-[#b9e5c5] [animation-delay:300ms]" />
       </div>
-    </div>
+    </Card>
   </div>
 </main>
 
@@ -608,7 +608,7 @@ onRetry: () => void;
 return ( <main
    dir="rtl"
    className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f6f7f5] px-5"
- > <div className="relative w-full max-w-md"> <div className="nomo-card p-8 text-center sm:p-10"> <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#fcf1f1] text-2xl">
+ > <div className="relative w-full max-w-md"> <Card className="nomo-card p-8 text-center sm:p-10"> <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#fcf1f1] text-2xl">
 ! </div>
 
 ```
@@ -624,11 +624,11 @@ return ( <main
         variant="primary"
         size="lg"
         onPress={onRetry}
-        className="mt-7 h-14 w-full rounded-xl bg-[#123c31] font-black text-white"
+        className="mt-7 h-14 md:h-14 w-full rounded-xl bg-[#123c31] font-black text-white"
       >
         المحاولة مرة أخرى
       </Button>
-    </div>
+    </Card>
 
     <p className="mt-5 text-center text-[11px] font-medium text-[#9aa9a3]">
       إذا استمرت المشكلة، تحقق من اتصال الخادم

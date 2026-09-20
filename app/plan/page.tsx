@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@heroui/react";
+import { Button, Card } from "@heroui/react";
 
 /* =========================================================
    TYPES
@@ -318,7 +318,7 @@ export default function PlanPage() {
             <Link href="/dashboard">
               <Button
                 variant="tertiary"
-                className="h-10 rounded-lg bg-white px-4 text-xs font-black text-[#123c31]"
+                className="h-10 md:h-10 rounded-xl bg-white px-4 text-xs font-black text-[#123c31]"
               >
                 لوحة التحكم
               </Button>
@@ -338,7 +338,7 @@ export default function PlanPage() {
             PLAN HERO
         ================================================= */}
 
-        <section className="nomo-gradient nomo-grid nomo-glow relative overflow-hidden rounded-[32px] p-6 sm:rounded-[40px] sm:p-9 lg:p-12">
+        <section className="nomo-gradient nomo-grid nomo-glow relative overflow-hidden rounded-4xl p-6 sm:rounded-4xl sm:p-9 lg:p-12">
 
           <div className="pointer-events-none absolute -left-40 -top-40 h-[420px] w-[420px] rounded-full bg-[#b9e5c5]/10 blur-3xl" />
 
@@ -455,11 +455,11 @@ export default function PlanPage() {
               const active = index === dayIndex;
 
               return (
-                <button
+                <Button variant="tertiary"
                   key={item.day}
                   type="button"
-                  onClick={() => goToDay(index)}
-                  className={`min-w-[105px] rounded-2xl border p-3 text-right transition-all ${
+                  onPress={() => goToDay(index)}
+                  className={`h-auto md:h-auto min-w-0 whitespace-normal block min-w-[105px] rounded-2xl border p-3 text-right transition-all ${
                     active
                       ? "border-[#123c31] bg-[#123c31] text-white shadow-lg shadow-[#123c31]/10"
                       : "border-[#e1e8e4] bg-white text-[#10231d] hover:-translate-y-0.5 hover:shadow-md"
@@ -495,7 +495,7 @@ export default function PlanPage() {
                     {item.title}
                   </div>
 
-                </button>
+                </Button>
               );
             })}
 
@@ -512,7 +512,7 @@ export default function PlanPage() {
 
             {/* DAY HEADER */}
 
-            <section className="nomo-card overflow-hidden">
+            <Card render={(props) => <section {...props} />} className="nomo-card overflow-hidden">
 
               <div className="h-1.5 bg-gradient-to-l from-[#123c31] via-[#73b987] to-[#b9e5c5]" />
 
@@ -575,11 +575,11 @@ export default function PlanPage() {
                 )}
 
               </div>
-            </section>
+            </Card>
 
             {/* KNOWLEDGE */}
 
-            <section className="nomo-card p-6 sm:p-8">
+            <Card render={(props) => <section {...props} />} className="nomo-card p-6 sm:p-8">
 
               <SectionHeader
                 eyebrow="LEARN"
@@ -593,7 +593,7 @@ export default function PlanPage() {
                   (item, index) => (
                     <article
                       key={`${item.title}-${index}`}
-                      className="rounded-[24px] border border-[#e1e8e4] bg-[#fbfcfa] p-5 sm:p-6"
+                      className="rounded-3xl border border-[#e1e8e4] bg-[#fbfcfa] p-5 sm:p-6"
                     >
 
                       <div className="flex gap-4">
@@ -633,11 +633,11 @@ export default function PlanPage() {
                 )}
 
               </div>
-            </section>
+            </Card>
 
             {/* CHALLENGE */}
 
-            <section className="nomo-gradient nomo-glow relative overflow-hidden rounded-[30px] p-6 text-white sm:p-8">
+            <section className="nomo-gradient nomo-glow relative overflow-hidden rounded-4xl p-6 text-white sm:p-8">
 
               <div className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-[#b9e5c5]/10 blur-3xl" />
 
@@ -712,7 +712,7 @@ export default function PlanPage() {
 
             {/* QUIZ */}
 
-            <section className="nomo-card p-6 sm:p-8">
+            <Card render={(props) => <section {...props} />} className="nomo-card p-6 sm:p-8">
 
               <SectionHeader
                 eyebrow="CHECKPOINT"
@@ -782,11 +782,11 @@ export default function PlanPage() {
                 </div>
 
               </div>
-            </section>
+            </Card>
 
             {/* EXERCISE */}
 
-            <section className="nomo-card p-6 sm:p-8">
+            <Card render={(props) => <section {...props} />} className="nomo-card p-6 sm:p-8">
 
               <div className="flex items-start gap-4">
 
@@ -823,11 +823,11 @@ export default function PlanPage() {
                 </p>
 
               </div>
-            </section>
+            </Card>
 
             {/* COMPLETE */}
 
-            <section className="rounded-[30px] bg-[#eff8f1] p-6 sm:p-8">
+            <section className="rounded-4xl bg-[#eff8f1] p-6 sm:p-8">
 
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
@@ -861,7 +861,7 @@ export default function PlanPage() {
                     currentDayCompleted ||
                     !allQuestionsAnswered
                   }
-                  className="h-14 shrink-0 rounded-lg bg-[#123c31] px-7 text-sm font-black text-white disabled:opacity-40"
+                  className="h-14 md:h-14 shrink-0 rounded-xl bg-[#123c31] px-7 text-sm font-black text-white disabled:opacity-40"
                 >
                   {currentDayCompleted
                     ? "✓ اليوم مكتمل"
@@ -882,7 +882,7 @@ export default function PlanPage() {
                 onPress={() =>
                   goToDay(dayIndex - 1)
                 }
-                className="h-14 rounded-lg bg-white font-black text-[#40544b]"
+                className="h-14 md:h-14 rounded-xl bg-white font-black text-[#40544b]"
               >
                 → اليوم السابق
               </Button>
@@ -897,7 +897,7 @@ export default function PlanPage() {
                 onPress={() =>
                   goToDay(dayIndex + 1)
                 }
-                className="h-14 rounded-lg bg-[#123c31] font-black text-white"
+                className="h-14 md:h-14 rounded-xl bg-[#123c31] font-black text-white"
               >
                 اليوم التالي ←
               </Button>
@@ -913,7 +913,7 @@ export default function PlanPage() {
 
             <div className="sticky top-[92px] space-y-4">
 
-              <div className="nomo-card p-5">
+              <Card className="nomo-card p-5">
 
                 <div className="text-[9px] font-black tracking-widest text-[#73b987]">
                   YOUR PROGRESS
@@ -943,9 +943,9 @@ export default function PlanPage() {
 
                 </div>
 
-              </div>
+              </Card>
 
-              <div className="nomo-card p-4">
+              <Card className="nomo-card p-4">
 
                 <div className="mb-3 px-2 text-[9px] font-black tracking-widest text-[#9aa9a3]">
                   DAYS
@@ -965,13 +965,13 @@ export default function PlanPage() {
                         index === dayIndex;
 
                       return (
-                        <button
+                        <Button variant="tertiary"
                           key={item.day}
                           type="button"
-                          onClick={() =>
+                          onPress={() =>
                             goToDay(index)
                           }
-                          className={`w-full rounded-2xl p-3 text-right transition ${
+                          className={`h-auto md:h-auto min-w-0 whitespace-normal block w-full rounded-2xl p-3 text-right transition ${
                             active
                               ? "bg-[#123c31] text-white"
                               : "hover:bg-[#f5f8f5]"
@@ -1020,13 +1020,13 @@ export default function PlanPage() {
 
                           </div>
 
-                        </button>
+                        </Button>
                       );
                     }
                   )}
 
                 </div>
-              </div>
+              </Card>
 
             </div>
           </aside>
@@ -1109,15 +1109,15 @@ function QuizQuestion({
                 question.correctAnswer;
 
             return (
-              <button
+              <Button variant="tertiary"
                 key={optionIndex}
                 type="button"
-                onClick={() =>
+                onPress={() =>
                   !checked &&
                   onSelect(optionIndex)
                 }
-                disabled={checked}
-                className={`flex items-center gap-3 rounded-2xl border p-4 text-right transition ${
+                isDisabled={checked}
+                className={`h-auto md:h-auto min-w-0 whitespace-normal block flex items-center gap-3 rounded-2xl border p-4 text-right transition ${
                   isCorrectOption
                     ? "border-[#9bd2aa] bg-[#eff8f1]"
                     : isWrongSelected
@@ -1129,7 +1129,7 @@ function QuizQuestion({
               >
 
                 <span
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[10px] font-black ${
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl text-[10px] font-black ${
                     isCorrectOption
                       ? "bg-[#123c31] text-[#b9e5c5]"
                       : isWrongSelected
@@ -1160,7 +1160,7 @@ function QuizQuestion({
                   </span>
                 )}
 
-              </button>
+              </Button>
             );
           }
         )}
@@ -1172,7 +1172,7 @@ function QuizQuestion({
           variant="primary"
           onPress={onCheck}
           isDisabled={selected < 0}
-          className="mt-4 h-11 w-full rounded-lg bg-[#123c31] text-xs font-black text-white disabled:opacity-40"
+          className="mt-4 h-11 md:h-11 w-full rounded-xl bg-[#123c31] text-xs font-black text-white disabled:opacity-40"
         >
           تحقق من الإجابة
         </Button>
@@ -1269,7 +1269,7 @@ function PlanLoading() {
       className="flex min-h-screen items-center justify-center bg-[#f6f7f5] px-6"
     >
 
-      <div className="nomo-card w-full max-w-md p-10 text-center">
+      <Card className="nomo-card w-full max-w-md p-10 text-center">
 
         <div className="relative mx-auto h-20 w-20">
 
@@ -1295,7 +1295,7 @@ function PlanLoading() {
 
         </div>
 
-      </div>
+      </Card>
     </main>
   );
 }
@@ -1315,7 +1315,7 @@ function EmptyPlan() {
 
       <div className="relative w-full max-w-md">
 
-        <div className="nomo-card p-8 text-center sm:p-10">
+        <Card className="nomo-card p-8 text-center sm:p-10">
 
           <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-[#eff8f1] text-2xl font-black text-[#123c31]">
             N
@@ -1337,13 +1337,13 @@ function EmptyPlan() {
             <Button
               variant="primary"
               size="lg"
-              className="h-14 w-full rounded-lg bg-[#123c31] font-black text-white"
+              className="h-14 md:h-14 w-full rounded-xl bg-[#123c31] font-black text-white"
             >
               العودة إلى لوحة التحكم
             </Button>
           </Link>
 
-        </div>
+        </Card>
 
       </div>
     </main>
