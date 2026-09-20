@@ -58,7 +58,7 @@ export default function HomePage() {
           <Link href="/assessment">
             <Button
               variant="primary"
-              className="h-10 rounded-lg bg-[#123c31] px-5 font-bold text-white shadow-lg shadow-[#123c31]/10"
+              className="h-10 rounded-xl bg-[#123c31] px-5 font-bold text-white shadow-lg shadow-[#123c31]/10"
             >
               ابدأ الآن
             </Button>
@@ -114,7 +114,7 @@ export default function HomePage() {
                   <Button
                     variant="primary"
                     size="lg"
-                    className="h-12 w-full rounded-lg bg-[#b9e5c5] px-7 font-black text-[#123c31] shadow-xl shadow-black/10 sm:w-auto"
+                    className="h-12 w-full rounded-xl bg-[#b9e5c5] px-7 font-black text-[#123c31] shadow-xl shadow-black/10 sm:w-auto"
                   >
                     اكتشف مستواك
                     <span>←</span>
@@ -125,7 +125,7 @@ export default function HomePage() {
                   <Button
                     variant="secondary"
                     size="lg"
-                    className="h-12 w-full rounded-lg border border-white/15 bg-white/[0.05] px-7 font-bold text-white backdrop-blur-md sm:w-auto"
+                    className="h-12 w-full rounded-xl border border-white/15 bg-white/[0.05] px-7 font-bold text-white backdrop-blur-md sm:w-auto"
                   >
                     كيف يعمل NOMO؟
                   </Button>
@@ -319,7 +319,7 @@ export default function HomePage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="h-12 rounded-lg bg-[#123c31] px-8 font-black text-white shadow-xl shadow-[#123c31]/15"
+                className="h-12 rounded-xl bg-[#123c31] px-8 font-black text-white shadow-xl shadow-[#123c31]/15"
               >
                 ابدأ الاختبار
                 <span>←</span>

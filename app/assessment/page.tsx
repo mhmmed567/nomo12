@@ -310,13 +310,14 @@ return ( <main
                 answers[current] === index;
 
               return (
-                <button
+                <Button variant="ghost"
                   key={`${question.id}-${index}`}
                   type="button"
-                  onClick={() =>
+                  aria-pressed={selected}
+                  onPress={() =>
                     selectAnswer(index)
                   }
-                  className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border p-4 text-right transition-all duration-200 sm:p-5 ${
+                  className={`h-auto whitespace-normal justify-start group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border p-4 text-right transition-all duration-200 sm:p-5 ${
                     selected
                       ? "border-[#73b987] bg-[#eff8f1] shadow-[0_10px_30px_rgba(115,185,135,0.12)]"
                       : "border-[#e1e8e4] bg-white hover:-translate-y-0.5 hover:border-[#cbd8d1] hover:bg-[#fbfdfb] hover:shadow-lg"
@@ -358,7 +359,7 @@ return ( <main
                       <span className="h-2 w-2 rounded-full bg-[#b9e5c5]" />
                     )}
                   </span>
-                </button>
+                </Button>
               );
             }
           )}
@@ -439,13 +440,13 @@ return ( <main
             current === index;
 
           return (
-            <button
+            <Button variant="ghost"
               key={index}
               type="button"
-              onClick={() =>
+              onPress={() =>
                 setCurrent(index)
               }
-              className={`grid h-9 w-9 place-items-center rounded-xl text-xs font-black transition ${
+              className={`grid h-9 w-9 p-0 place-items-center rounded-xl text-xs font-black transition ${
                 active
                   ? "bg-[#123c31] text-white shadow-md"
                   : answered
@@ -454,7 +455,7 @@ return ( <main
               }`}
             >
               {index + 1}
-            </button>
+            </Button>
           );
         })}
       </div>
